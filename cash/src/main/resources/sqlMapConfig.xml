@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+	<!-- 对应Bean类的xml配置文件的路径信息 -->
+	<mappers>	  
+        <mapper resource="mapper/UserMapper.xml" />
+        <mapper resource="mapper/UserPersonalInfoMapper.xml" />
+        <mapper resource="mapper/LessonMapper.xml" />
+        <mapper resource="mapper/MajorPositionMapper.xml" />
+        <mapper resource="mapper/MinorPositionMapper.xml" />
+        <mapper resource="mapper/OrderMapper.xml" />
+        <mapper resource="mapper/StudentCommentMapper.xml" />
+        <mapper resource="mapper/TeacherMapper.xml" />
+        <mapper resource="mapper/UserRequirementMapper.xml" />
+        <mapper resource="mapper/SuitableCrowdMapper.xml" />
+        <mapper resource="mapper/CustomerServiceMapper.xml" />
+        <mapper resource="mapper/WechatPayResultMapper.xml" />
+        <mapper resource="mapper/MobileMessageIntervalMapper.xml" />
+	</mappers>
+	
+</configuration>
