@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.education.dao.UserMapper" >
+  <resultMap id="BaseResultMap" type="com.education.model.User" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="wechat" property="wechat" jdbcType="VARCHAR" />
+    <result column="wechat_nickname" property="wechatNickname" jdbcType="VARCHAR" />
+    <result column="qq" property="qq" jdbcType="VARCHAR" />
+    <result column="phone" property="phone" jdbcType="VARCHAR" />
+    <result column="password" property="password" jdbcType="VARCHAR" />
+    <result column="register_time" property="registerTime" jdbcType="TIMESTAMP" />
+    <result column="register_ip" property="registerIp" jdbcType="BIGINT" />
+    <result column="status" property="status" jdbcType="SMALLINT" />
+    <result column="level" property="level" jdbcType="SMALLINT" />
+    <result column="invitor" property="invitor" jdbcType="INTEGER" />
+    <result column="inviter_code" property="invitorCode" jdbcType="VARCHAR" />
+    <result column="source" property="source" jdbcType="SMALLINT" />
+  </resultMap>
+  
+  <insert id="addNewUser" useGeneratedKeys="true" keyProperty="id" parameterType="com.education.model.User">
+  	insert into user_main (phone,password,register_time,register_ip,status,level,invitor,inviter_code,source,wechat) 
+  	values 
+  	(#{phone,jdbcType=VARCHAR},#{password,jdbcType=VARCHAR},#{registerTime,jdbcType=TIMESTAMP},
+  	#{registerIp,jdbcType=BIGINT},#{status,jdbcType=SMALLINT},#{level,jdbcType=SMALLINT},
+  	#{invitor,jdbcType=INTEGER},#{invitorCode,jdbcType=VARCHAR},#{source,jdbcType=SMALLINT},
+  	#{wechat,jdbcType=VARCHAR})
+  </insert>
+  
+  <update id="updateUser" parameterType="com.education.model.User">
+  	update user_main 
+  	<set>
+  		<if test="wechat != null">
+  			wechat = #{wechat,jdbcType=VARCHAR},
+  		</if>
+  		<if test="wechatNickname != null">
+  			wechat_nickname = #{wechatNickname,jdbcType=VARCHAR},
+  		</if>
+  		<if test="qq != null">
+  			qq = #{qq,jdbcType=VARCHAR},
+  		</if>
+  		<if test="password != null">
+  			password = #{password,jdbcType=VARCHAR},
+  		</if>
+  		<if test="phone != null">
+  			phone = #{phone,jdbcType=VARCHAR},
+  		</if>
+  		<if test="status != null">
+  			status = #{status,jdbcType=SMALLINT},
+  		</if>
+  		<if test="level != null">
+  			level = #{level,jdbcType=SMALLINT},
+  		</if>
+  		<if test="invitorCode != null">
+  			inviter_code = #{invitorCode,jdbcType=VARCHAR},
+  		</if>
+  	</set>
+  	where id = #{id,jdbcType=INTEGER}
+  </update>
+  
+  <select id="selectUserByInviteCode" parameterType="String" resultMap="BaseResultMap">
+  	select * from user_main where inviter_code = #{invitorCode,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="checkPhoneExistOrNot" parameterType="String" resultType="Integer">
+  	select count(*) from user_main where phone = #{phone,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="selectUserById" parameterType="Integer" resultMap="BaseResultMap">
+  	select * from user_main where id = #{userId,jdbcType=INTEGER}
+  </select>
+  
+  <select id="selectUserByIdForUpdate" parameterType="Integer" resultMap="BaseResultMap">
+  	select * from user_main where id = #{userId,jdbcType=INTEGER} for update
+  </select>
+  
+  <select id="selectUserByPhone" parameterType="String" resultMap="BaseResultMap">
+  	select * from user_main where phone = #{phone,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="selectUserByWechat" parameterType="String" resultMap="BaseResultMap">
+  	select * from user_main where wechat = #{wechat,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="countOpenId" parameterType="string" resultType="int">
+  	select count(*) from user_main where wechat = #{wechat,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="selectUserForParams" parameterType="map" resultType="map">
+  	select main.id,
+  	       main.register_time as registerTime,
+  	       main.phone,
+  	       main.inviter_code as inviterCode,
+  	       info.real_name as realName,
+  	       info.id_card as idCard,
+  	       info.id_card_status as idCardStatus,
+  	       info.id_card_face as idCardFace,
+  	       info.id_card_back as idCardBack 
+  	 from user_main main join user_personal_info info on main.id = info.user_id where 1 = 1
+  	<if test="id != null">
+  		and main.id = #{id,jdbcType=INTEGER}
+  	</if>
+  	<if test="phone != null">
+  		and main.phone = #{phone,jdbcType=VARCHAR}
+  	</if>
+  	<if test="realName != null">
+  		and info.real_name = #{realName,jdbcType=VARCHAR}
+  	</if>
+  	<if test="startDate != null" >
+  		<![CDATA[and main.register_time > #{startDate,jdbcType=TIMESTAMP}]]>
+  	</if>
+  	<if test="endDate != null" >
+  		<![CDATA[and main.register_time < #{endDate,jdbcType=TIMESTAMP}]]>
+  	</if>
+  	<if test="idCardStatus != -1" >
+  		<if test="idCardStatus == 0" >
+  			and info.id_card_status in (0,3)
+  		</if>
+  		<if test="idCardStatus == 1 or idCardStatus == 2" >
+  			and info.id_card_status = #{idCardStatus,jdbcType=TINYINT}
+  		</if>
+  	</if>
+  	order by id desc limit #{offset,jdbcType=INTEGER}, #{pageSize,jdbcType=INTEGER}
+  </select>
+  
+  <select id="selectUserForParamsCount" resultType="int">
+  	select count(*)
+  	 from user_main main join user_personal_info info on main.id = info.user_id where 1 = 1
+  	<if test="id != null">
+  		and main.id = #{id,jdbcType=INTEGER}
+  	</if>
+  	<if test="phone != null">
+  		and main.phone = #{phone,jdbcType=VARCHAR}
+  	</if>
+  	<if test="realName != null">
+  		and info.real_name = #{realName,jdbcType=VARCHAR}
+  	</if>
+  	<if test="startDate != null" >
+  		<![CDATA[and main.register_time > #{startDate,jdbcType=TIMESTAMP}]]>
+  	</if>
+  	<if test="endDate != null" >
+  		<![CDATA[and main.register_time < #{endDate,jdbcType=TIMESTAMP}]]>
+  	</if>
+  	<if test="idCardStatus != -1" >
+  		<if test="idCardStatus == 0" >
+  			and info.id_card_status in (0,3)
+  		</if>
+  		<if test="idCardStatus == 1 or idCardStatus == 2" >
+  			and info.id_card_status = #{idCardStatus,jdbcType=TINYINT}
+  		</if>
+  	</if>
+  </select>
+</mapper>
